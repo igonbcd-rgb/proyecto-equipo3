@@ -6,10 +6,10 @@ Uso: python modelo/entrenar.py [archivo_salida]
 import sys
 from datetime import datetime, timezone
 import joblib
-from sklearn.datasets import load_iris
+from sklearn.datasets import load_breast_cancer
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 # ---------------------------------------------------------------- Configuración
@@ -19,9 +19,9 @@ SEMILLA = 42 # misma semilla = mismo resultado (reproducible)
 # ---------------------------------------------------------------- 1. Datos
 # load_iris trae 150 flores con 4 medidas (cm) y su especie (0, 1 o 2).
 # >>> En su proyecto: aquí cargan SUS datos (CSV, dataset de scikit-learn, etc.).
-iris = load_iris()
-X, y = iris.data, iris.target
-NOMBRES_CLASES = list(iris.target_names) # ["setosa", "versicolor", ...]
+datos = load_breast_cancer()
+X, y = datos.data, datos.target   # 30 medidas; 0 = maligno, 1 = benigno
+NOMBRES_CLASES = list(datos.target_names)
 # 70 % para entrenar y 30 % para evaluar. stratify mantiene la proporción de
 # cada clase en ambos conjuntos; el modelo nunca ve los datos de prueba.
 X_tr, X_te, y_tr, y_te = train_test_split(
@@ -30,7 +30,7 @@ X_tr, X_te, y_tr, y_te = train_test_split(
 # Pipeline: primero escala las medidas (media 0, desviación 1) y luego aplica
 # KNN. Escalar importa en KNN porque compara distancias entre puntos.
 # >>> En su proyecto: cambian KNeighborsClassifier por su algoritmo.
-modelo = make_pipeline(StandardScaler(), KNeighborsClassifier(n_neighbors=5))
+modelo = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000))
 modelo.fit(X_tr, y_tr)
 # ---------------------------------------------------------------- 3. Evaluación
 predicciones = modelo.predict(X_te)
