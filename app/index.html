@@ -1,60 +1,50 @@
 <!doctype html>
-<!-- Página de ClasificaIA: formulario que llama a POST /predict con fetch.
-    En su proyecto cambian los campos del formulario por las variables de su modelo. -->
+<!-- Página de diagnóstico de tumores: formulario que llama a POST /predict con fetch. -->
 <html lang="es">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ClasificaIA</title>
-    <style>
-     body { font-family: system-ui, sans-serif; max-width: 420px; margin: 2rem auto; }
-     label { display: block; margin-bottom: 0.6rem; }
-     input { width: 100%; padding: 4px; }
-     button { padding: 6px 14px; }
-     #resultado { font-weight: bold; }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diagnóstico de tumores</title>
+<style>
+body { font-family: system-ui, sans-serif; max-width: 520px; margin: 2rem auto; }
+label { display: block; margin-bottom: 0.6rem; }
+textarea { width: 100%; padding: 4px; }
+input { width: 100%; padding: 4px; }
+button { padding: 6px 14px; }
+#resultado { font-weight: bold; }
+</style>
 </head>
 <body>
-    <h1>ClasificaIA</h1>
-    <p>Escribe las medidas de una flor (cm) y el modelo dirá su especie.</p>
-    <form id="formulario">
-        <!-- name debe coincidir con los campos de la clase Flor en app/main.py -->
-        <label>Largo del sépalo
-            <input name="largo_sepalo" type="number" step="0.1" value="5.1" required></label>
-        <label>Ancho del sépalo
-            <input name="ancho_sepalo" type="number" step="0.1" value="3.5" required></label>
-        <label>Largo del pétalo
-            <input name="largo_petalo" type="number" step="0.1" value="1.4" required></label>
-        <label>Ancho del pétalo
-            <input name="ancho_petalo" type="number" step="0.1" value="0.2" required></label>
-        <!-- Hito 4: si la API exige llave, se escribe aquí (no se guarda en el código) -->
-        <label>Llave de acceso (opcional)
-            <input id="llave" type="password" autocomplete="off"></label>
-        <button>Clasificar</button>
-    </form>
-    <p id="resultado"></p>
-
-
-    <script>
-        // Al enviar el formulario: arma un objeto JSON con los campos y llama a la API
-        document.getElementById("formulario").addEventListener("submit", async (evento) => {
-            evento.preventDefault(); // no recargar la página
-            const campos = new FormData(evento.target);
-            const datos = {};
-            for (const [nombre, valor] of campos) datos[nombre] = parseFloat(valor);
-            const cabeceras = { "Content-Type": "application/json" };
-            const llave = document.getElementById("llave").value;
-            if (llave) cabeceras["x-api-key"] = llave; // solo si el usuario la escribió
-            const resp = await fetch("/predict", {
-                method: "POST",
-                headers: cabeceras,
-                body: JSON.stringify(datos),
-            });
-            const json = await resp.json();
-            document.getElementById("resultado").textContent = resp.ok
-                ? `${json.clase} (confianza ${json.confianza})`
-                : "Datos inválidos: revisa los valores";
-        });
-    </script>
+<h1>Diagnóstico de tumores</h1>
+<p>Escribe las 30 medidas del tumor separadas por comas y el modelo dirá si es benigno o maligno.</p>
+<form id="formulario">
+  <label>Medidas (30 valores)
+    <textarea name="medidas" rows="6" required>17.99,10.38,122.8,1001.0,0.1184,0.2776,0.3001,0.1471,0.2419,0.07871,1.095,0.9053,8.589,153.4,0.006399,0.04904,0.05373,0.01587,0.03003,0.006193,25.38,17.33,184.6,2019.0,0.1622,0.6656,0.7119,0.2654,0.4601,0.1189</textarea></label>
+  <!-- Hito 4: si la API exige llave, se escribe aquí (no se guarda en el código) -->
+  <label>Llave de acceso (opcional)
+    <input id="llave" type="password" autocomplete="off"></label>
+  <button>Clasificar</button>
+</form>
+<p id="resultado"></p>
+<script>
+// Al enviar: convierte el texto en una lista de números y llama a la API
+document.getElementById("formulario").addEventListener("submit", async (evento) => {
+  evento.preventDefault(); // no recargar la página
+  const texto = new FormData(evento.target).get("medidas");
+  const medidas = texto.split(",").map((v) => parseFloat(v.trim()));
+  const cabeceras = { "Content-Type": "application/json" };
+  const llave = document.getElementById("llave").value;
+  if (llave) cabeceras["x-api-key"] = llave; // solo si el usuario la escribió
+  const resp = await fetch("/predict", {
+    method: "POST",
+    headers: cabeceras,
+    body: JSON.stringify({ medidas }),
+  });
+  const json = await resp.json();
+  document.getElementById("resultado").textContent = resp.ok
+    ? `${json.clase} (confianza ${json.confianza})`
+    : "Datos inválidos: revisa que sean 30 números separados por comas";
+});
+</script>
 </body>
 </html>
