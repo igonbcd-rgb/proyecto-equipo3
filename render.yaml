@@ -3,9 +3,9 @@
 # campos en la documentación de Render (Blueprint spec): pueden cambiar.
 services:
 - type: web # servicio web que recibe peticiones HTTP
-name: proyecto-equipo3 
-runtime: docker # se construye con el Dockerfile del repositorio
-plan: free
-dockerfilePath: ./Dockerfile
-healthCheckPath: /health # Render espera a que /health responda antes de usarlo
-autoDeploy: true # cada push a la rama vuelve a desplegar
+  name: proyecto-equipo3 
+  runtime: docker # se construye con el Dockerfile del repositorio
+  plan: free
+  dockerfilePath: ./Dockerfile
+  healthCheckPath: /health # Render espera a que /health responda antes de usarlo
+  autoDeploy: true # cada push a la rama vuelve a desplegar
